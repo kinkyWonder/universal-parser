@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ru">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Универсальный парсер данных — Бесплатно</title>
+	<meta name="description" content="Бесплатный онлайн парсер почт и телефонов — вытащите Email, телефоны РФ, ссылки и хэши из текста или .txt файла." />
+	<!-- Tailwind CSS CDN -->
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		/* Доп. стили для тонкого стеклянного эффекта и тёмной темы */
+		html,body{ height:100%; background:linear-gradient(180deg,#0f172a 0%, #020617 100%); }
+		.glass {
+			background: rgba(255,255,255,0.04);
+			backdrop-filter: blur(8px) saturate(120%);
+			-webkit-backdrop-filter: blur(8px) saturate(120%);
+			border: 1px solid rgba(255,255,255,0.06);
+		}
+		textarea:focus, input:focus { outline: none; box-shadow: 0 0 0 3px rgba(99,102,241,0.14); }
+		.radio-visual input:checked + span { background: linear-gradient(90deg,#6366f1,#06b6d4); color: white; }
+	</style>
+</head>
+<body class="antialiased text-gray-200">
+	<div class="min-h-screen flex items-center justify-center p-6">
+		<div class="w-full max-w-4xl glass rounded-2xl p-8 drop-shadow-lg">
+			<header class="mb-6">
+				<h1 class="text-2xl font-semibold">Универсальный парсер данных</h1>
+				<p class="text-sm text-gray-400 mt-1">Вставьте текст или загрузите .txt — выберите тип и нажмите «Вытащить».</p>
+			</header>
+
+			<main class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<section class="md:col-span-1">
+					<label class="text-sm text-gray-300">Исходный текст</label>
+					<textarea id="inputText" rows="12" class="mt-2 w-full bg-transparent border border-gray-700 rounded-lg p-3 text-sm placeholder-gray-500 resize-vertical" placeholder="Вставьте сюда текст или загрузите .txt файл"></textarea>
+
+					<div class="mt-3 flex items-center gap-3">
+						<label class="w-full">
+							<input id="fileInput" type="file" accept=".txt" class="hidden" />
+							<button id="fileBtn" class="w-full bg-gray-800 hover:bg-gray-700 text-gray-200 py-2 px-3 rounded-lg text-sm">Загрузить .txt</button>
+						</label>
+						<button id="clearBtn" class="bg-gray-800 hover:bg-gray-700 text-gray-200 py-2 px-3 rounded-lg text-sm">Очистить</button>
+					</div>
+
+					<div class="mt-4">
+						<label class="text-sm text-gray-300">Настройки</label>
+						<div class="mt-2 bg-gray-900/20 p-3 rounded-lg">
+							<div class="text-xs text-gray-400 mb-2">Тип данных</div>
+							<div class="grid grid-cols-2 gap-2">
+								<label class="radio-visual flex items-center gap-2 bg-gray-800/40 p-2 rounded-lg text-sm cursor-pointer">
+									<input type="radio" name="type" value="email" checked class="hidden" />
+									<span class="px-2 py-1 rounded text-gray-200">Email</span>
+								</label>
+								<label class="radio-visual flex items-center gap-2 bg-gray-800/40 p-2 rounded-lg text-sm cursor-pointer">
+									<input type="radio" name="type" value="phone" class="hidden" />
+									<span class="px-2 py-1 rounded text-gray-200">Телефоны (РФ)</span>
+								</label>
+								<label class="radio-visual flex items-center gap-2 bg-gray-800/40 p-2 rounded-lg text-sm cursor-pointer">
+									<input type="radio" name="type" value="links" class="hidden" />
+									<span class="px-2 py-1 rounded text-gray-200">Ссылки</span>
+								</label>
+								<label class="radio-visual flex items-center gap-2 bg-gray-800/40 p-2 rounded-lg text-sm cursor-pointer">
+									<input type="radio" name="type" value="hash" class="hidden" />
+									<span class="px-2 py-1 rounded text-gray-200">Хэши</span>
+								</label>
+							</div>
+
+							<div class="mt-3 flex items-center gap-3">
+								<label class="inline-flex items-center text-sm text-gray-300">
+									<input id="uniqueChk" type="checkbox" checked class="mr-2" />
+									Удалить дубликаты
+								</label>
+								<span id="countLabel" class="ml-auto text-sm text-gray-400">Найдено: 0</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="mt-4 flex gap-3">
+						<button id="extractBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg font-medium">Вытащить</button>
+						<button id="downloadBtn" class="bg-gray-800 hover:bg-gray-700 text-gray-200 py-2 px-3 rounded-lg" disabled>Скачать .txt</button>
+					</div>
+				</section>
+
+				<section class="md:col-span-1">
+					<label class="text-sm text-gray-300">Результат</label>
+					<textarea id="outputText" rows="18" readonly class="mt-2 w-full bg-transparent border border-gray-700 rounded-lg p-3 text-sm placeholder-gray-500 resize-none" placeholder="Здесь появятся найденные элементы"></textarea>
+				</section>
+			</main>
+
+			<footer class="mt-6 text-center text-xs text-gray-400">
+				<p class="max-w-prose mx-auto">Бесплатный онлайн-инструмент для быстрого извлечения Email, российских телефонов, ссылок и популярных хэшей из текста или .txt файла.</p>
+			</footer>
+
+			<!-- SEO блок (мелким шрифтом, серым цветом) -->
+			<div class="mt-4 text-[11px] text-gray-500">
+				Это бесплатный онлайн парсер почт и телефонов. Используйте инструмент для быстрой обработки текстов и логов.
+			</div>
+		</div>
+	</div>
+
+<script>
+	// Элементы
+	const inputText = document.getElementById('inputText');
+	const outputText = document.getElementById('outputText');
+	const fileInput = document.getElementById('fileInput');
+	const fileBtn = document.getElementById('fileBtn');
+	const clearBtn = document.getElementById('clearBtn');
+	const extractBtn = document.getElementById('extractBtn');
+	const downloadBtn = document.getElementById('downloadBtn');
+	const uniqueChk = document.getElementById('uniqueChk');
+	const countLabel = document.getElementById('countLabel');
+
+	// RegEx'ы
+	const regexes = {
+		email: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g,
+		// Телефоны РФ: +7, 7, 8 с разделителями, скобками или без
+		phone: /(?:(?:\+7|7|8)[\s-]*\(?\d{3}\)?[\s-]*\d{3}[\s-]*\d{2}[\s-]*\d{2})/g,
+		// Ссылки: http(s):// или www.
+		links: /\b(?:https?:\/\/|www\.)[^\s<>"'()]+/gi,
+		// Хэши: MD5 (32), SHA1 (40), SHA256 (64) — hex
+		hash: /\b(?:[a-f0-9]{32}|[a-f0-9]{40}|[a-f0-9]{64})\b/gi
+	};
+
+	// Обработчики файлов
+	fileBtn.addEventListener('click', () => fileInput.click());
+	fileInput.addEventListener('change', handleFile);
+	clearBtn.addEventListener('click', () => {
+		inputText.value = '';
+		outputText.value = '';
+		countLabel.textContent = 'Найдено: 0';
+		downloadBtn.disabled = true;
+	});
+
+	function handleFile(e) {
+		const f = e.target.files[0];
+		if (!f) return;
+		if (f.type && !f.type.includes('text')) {
+			alert('Пожалуйста, выберите .txt файл.');
+			return;
+		}
+		const reader = new FileReader();
+		reader.onload = () => {
+			inputText.value = reader.result;
+		};
+		reader.onerror = () => alert('Ошибка чтения файла');
+		reader.readAsText(f, 'utf-8');
+	}
+
+	// Получаем выбранный тип
+	function getSelectedType() {
+		const r = document.querySelector('input[name="type"]:checked');
+		return r ? r.value : 'email';
+	}
+
+	// Основная функция извлечения
+	extractBtn.addEventListener('click', () => {
+		const text = inputText.value || '';
+		if (!text.trim()) {
+			alert('Пожалуйста, вставьте текст или загрузите .txt файл.');
+			return;
+		}
+		const type = getSelectedType();
+		const re = regexes[type];
+		if (!re) return;
+
+		// Находим все совпадения
+		const matches = [];
+		// Для регексов с флагом global используем exec в цикле, иначе match даст null/array
+		let m;
+		while ((m = re.exec(text)) !== null) {
+			matches.push(m[0].trim());
+			// Защита от бесконечного цикла для нулевой длины совпадений
+			if (re.lastIndex === m.index) re.lastIndex++;
+		}
+
+		let results = matches;
+		if (uniqueChk.checked) {
+			// Удаляем дубликаты с сохранением порядка
+			const seen = new Set();
+			results = matches.filter(x => {
+				const key = x.toLowerCase();
+				if (seen.has(key)) return false;
+				seen.add(key);
+				return true;
+			});
+		}
+
+		// Отображаем результат
+		if (results.length === 0) {
+			outputText.value = '';
+			countLabel.textContent = 'Найдено: 0';
+			downloadBtn.disabled = true;
+			alert('Ничего не найдено.');
+		} else {
+			outputText.value = results.join('\n');
+			countLabel.textContent = 'Найдено: ' + results.length;
+			downloadBtn.disabled = false;
+		}
+	});
+
+	// Скачивание .txt
+	downloadBtn.addEventListener('click', () => {
+		const data = outputText.value;
+		if (!data) return;
+		const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		const type = getSelectedType();
+		a.download = `parsed_${type}.txt`;
+		document.body.appendChild(a);
+		a.click();
+		a.remove();
+		URL.revokeObjectURL(url);
+	});
+</script>
+</body>
+</html>
